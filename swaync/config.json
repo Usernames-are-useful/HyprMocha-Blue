@@ -86,12 +86,8 @@
           "command": "blueman-manager"
         },
         {
-          "label": "󰏔",
-          "command": "kitty -e yay"
-        },
-        {
-          "label": "󰮯",
-          "command": "kitty -e yay -Syu"
+          "label": "",
+          "command": "kitty bash -c 'sudo dnf upgrade; read'"
         }
       ]
     }

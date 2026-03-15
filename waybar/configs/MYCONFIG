@@ -18,9 +18,9 @@
 	"margin-right": 8,
 
 	"modules-left": [
-		"custom/arch",
+		"custom/fedora",
 		"custom/separator#blank_2",
-		"hyprland/workspaces#pacman",
+		"hyprland/workspaces#kanji",
 		"custom/separator#blank_2",
 		"mpris",
 		"group/notify",
@@ -41,8 +41,8 @@
 		"custom/power"
 	],
 
-	"custom/arch": {
-		"format": " ",
+	"custom/fedora": {
+		"format": "  ",
 		"tooltip": false,
 		"on-click": "rofi -show drun"
 	}
