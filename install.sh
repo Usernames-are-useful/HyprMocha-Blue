@@ -3,8 +3,7 @@
 #  HyprMocha-Blue — Dotfiles Install Script
 #  https://github.com/Usernames-are-useful/HyprMocha-Blue
 #
-#  For Fedora 41+
-#  (your friend's version)
+#  For Arch Linux (btw)
 # ============================================================
 
 set -euo pipefail
@@ -26,16 +25,15 @@ info()    { echo -e "${BLUE}${BOLD}[INFO]${NC}  $*"; }
 success() { echo -e "${GREEN}${BOLD}[OK]${NC}    $*"; }
 warn()    { echo -e "${YELLOW}${BOLD}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}${BOLD}[ERR]${NC}   $*" >&2; }
+btw()     { echo -e "${BOLD}        $*${NC}"; }
 
 # ── Packages ─────────────────────────────────────────────────
-# Requires solopasha/hyprland COPR for most of the Hyprland stack
-FEDORA_PKGS=(
+PACMAN_PKGS=(
     hyprland
     waybar
     kitty
     rofi-wayland
     swaync
-    wlogout
     cava
     fastfetch
     neovim
@@ -58,13 +56,18 @@ FEDORA_PKGS=(
     pamixer
     pipewire
     wireplumber
-    pipewire-pulseaudio
-    swww
-    jetbrains-mono-fonts
-    google-noto-emoji-fonts
+    pipewire-pulse
+    ttf-jetbrains-mono-nerd
+    noto-fonts-emoji
     wget
     curl
     unzip
+)
+
+AUR_PKGS=(
+    wlogout
+    swww
+    hyprshot
 )
 
 # ── Helpers ───────────────────────────────────────────────────
@@ -94,12 +97,26 @@ link_config() {
     success "Linked $name → $dst"
 }
 
+install_yay() {
+    if command_exists yay; then
+        success "yay already installed"
+        return
+    fi
+    info "Installing yay (AUR helper)..."
+    local tmp
+    tmp=$(mktemp -d)
+    git clone --depth=1 https://aur.archlinux.org/yay.git "$tmp/yay"
+    (cd "$tmp/yay" && makepkg -si --noconfirm)
+    rm -rf "$tmp"
+    success "yay installed"
+}
+
 # ── Main ──────────────────────────────────────────────────────
 main() {
     echo
     echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}"
     echo -e "${BOLD}║       HyprMocha-Blue  Installer          ║${NC}"
-    echo -e "${BOLD}║       Fedora Edition                     ║${NC}"
+    echo -e "${BOLD}║       btw, I use Arch                    ║${NC}"
     echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
     echo
 
@@ -108,9 +125,9 @@ main() {
         exit 1
     fi
 
-    if ! command_exists dnf; then
-        error "dnf not found. This script is for Fedora."
-        error "If you're on Arch, use install.sh instead."
+    if ! command_exists pacman; then
+        error "pacman not found. This script is for Arch Linux (btw)."
+        error "If you're on Fedora, use install-fedora.sh instead."
         exit 1
     fi
 
@@ -131,16 +148,18 @@ main() {
     # ── 2. Install packages ───────────────────────────────────
     read -rp "$(echo -e "${YELLOW}Install packages?${NC} [Y/n] ")" pkg_yn
     if [[ "${pkg_yn,,}" != "n" ]]; then
-        info "Enabling solopasha/hyprland COPR..."
-        sudo dnf copr enable -y solopasha/hyprland || \
-            warn "COPR enable may have failed — Hyprland packages might not install correctly"
+        info "Updating system (btw)..."
+        sudo pacman -Syu --noconfirm
 
-        info "Updating system..."
-        sudo dnf upgrade -y
+        info "Installing pacman packages..."
+        sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}" || \
+            warn "Some pacman packages may have failed — check output above"
 
-        info "Installing packages..."
-        sudo dnf install -y "${FEDORA_PKGS[@]}" || \
-            warn "Some packages may have failed — check output above"
+        install_yay
+
+        info "Installing AUR packages..."
+        yay -S --needed --noconfirm "${AUR_PKGS[@]}" || \
+            warn "Some AUR packages may have failed — check output above"
 
         success "Package installation complete"
     else
@@ -184,6 +203,8 @@ main() {
     echo -e "  2. Or start it with: ${BOLD}Hyprland${NC}"
     echo -e "  3. Edit ${BOLD}~/.config/hypr/hyprland.conf${NC} to set your monitor layout"
     echo -e "     (run ${BOLD}hyprctl monitors${NC} after first launch to get your monitor name)"
+    echo
+    btw "I use Arch, by the way."
     echo
 }
 
